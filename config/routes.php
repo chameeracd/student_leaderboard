@@ -102,3 +102,5 @@ Router::scope('/', function (RouteBuilder $routes) {
  * });
  * ```
  */
+
+$routes->connect('/api/leaderboard', ['controller' => 'Api', 'action' => 'leaderboard', 'isRest' => true]);
