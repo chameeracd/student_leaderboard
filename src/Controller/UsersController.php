@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\Controller\Component\AuthComponent;
 use Cake\Event\Event;
 
 /**
@@ -19,7 +20,7 @@ class UsersController extends AppController
         // Allow users to register and logout.
         // You should not add the "login" action to allow list. Doing so would
         // cause problems with normal functioning of AuthComponent.
-        $this->Auth->allow(['add', 'logout']);
+        $this->Auth->allow(['logout']);
     }
 
     public function login()
@@ -36,6 +37,8 @@ class UsersController extends AppController
 
     public function logout()
     {
+        AuthComponent::logout();
+
         return $this->redirect($this->Auth->logout());
     }
 
