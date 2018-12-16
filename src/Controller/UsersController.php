@@ -37,8 +37,6 @@ class UsersController extends AppController
 
     public function logout()
     {
-        AuthComponent::logout();
-
         return $this->redirect($this->Auth->logout());
     }
 
