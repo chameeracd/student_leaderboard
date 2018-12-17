@@ -15,6 +15,7 @@
 namespace App\Controller;
 
 use Cake\Core\Configure;
+use Cake\Event\Event;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
 use Cake\View\Exception\MissingTemplateException;
@@ -28,6 +29,10 @@ use Cake\View\Exception\MissingTemplateException;
  */
 class PagesController extends AppController
 {
+    public function beforeFilter(Event $event)
+    {
+        $this->Auth->allow();
+    }
 
     /**
      * Displays a view

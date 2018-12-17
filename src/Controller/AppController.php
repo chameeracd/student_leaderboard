@@ -46,14 +46,7 @@ class AppController extends Controller
         ]);
         $this->loadComponent('Flash');
 
-        $this->loadComponent('Auth', [
-            'authenticate' => [
-                'Basic' => [
-                    'fields' => ['username' => 'username', 'password' => 'password'],
-                    'userModel' => 'Users'
-                ],
-            ],
-        ]);
+        $this->loadComponent('Auth');
 
         /*
          * Enable the following component for recommended CakePHP security settings.
