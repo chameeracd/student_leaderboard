@@ -24,11 +24,11 @@ $this->Form->setTemplates([
                 <th><?= __('Excludes') ?></th>
             </tr>
             <tr>
-                <td><?= $this->Form->control('mock', ['type' => 'checkbox', 'id' => 'mock', 'onclick' =>'getLeaderboard()']) ?></td>
-                <td><?= $this->Form->select('size', $sizes, ['default' => 1, 'id' => 'size', 'onclick' =>'getLeaderboard()']) ?></td>
-                <td><?= $this->Form->select('page', $sizes, ['default' => 1, 'id' => 'page', 'onclick' =>'getLeaderboard()']) ?></td>
-                <td><?= $this->Form->select('include', $assessments, ['empty' => [null => '--All--'], 'id' => 'include', 'multiple'=> true, 'onclick' =>'getLeaderboard()']) ?></td>
-                <td><?= $this->Form->select('exclude', $assessments, ['empty' => [null => '--NONE--'], 'id' => 'exclude', 'multiple'=> true, 'onclick' =>'getLeaderboard()']) ?></td>
+                <td><?= $this->Form->control('mock', ['type' => 'checkbox', 'id' => 'mock', 'onclick' => 'getLeaderboard()']) ?></td>
+                <td><?= $this->Form->select('size', $sizes, ['default' => 1, 'id' => 'size', 'onclick' => 'getLeaderboard()']) ?></td>
+                <td><?= $this->Form->select('page', $sizes, ['default' => 1, 'id' => 'page', 'onclick' => 'getLeaderboard()']) ?></td>
+                <td><?= $this->Form->select('include', $assessments, ['empty' => [null => '--All--'], 'id' => 'include', 'multiple' => true, 'onclick' => 'getLeaderboard()']) ?></td>
+                <td><?= $this->Form->select('exclude', $assessments, ['empty' => [null => '--NONE--'], 'id' => 'exclude', 'multiple' => true, 'onclick' => 'getLeaderboard()']) ?></td>
             </tr>
         </table>
 
@@ -75,14 +75,15 @@ echo $this->Html->script('jquery-3.3.1.min.js');
                 if (response.result) {
                     var table = $('#result');
                     table.html('');
+                    var rank = (parseInt(page) - 1) * parseInt(size) + 1;
                     var result = response.result.data;
                     $.each(result, function (i, item) {
                         var name = 'Anonymous';
-                        var rank = i + 1;
                         if (item.name != null) {
                             name = item.name
                         }
                         table.append('<tr><td>' + rank + '</td><td>' + name + '</td><td>' + item.total + '</td></tr>')
+                        rank++
                     });
                 }
             },
