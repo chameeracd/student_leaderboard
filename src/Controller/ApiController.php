@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Cake\Database\Expression\QueryExpression;
+use Cake\Event\Event;
 use Cake\Http\Response;
 use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
@@ -15,6 +16,10 @@ use Rest\Controller\RestController;
 class ApiController extends RestController
 {
 
+    public function beforeFilter(Event $event)
+    {
+        $this->Auth->allow();
+    }
     /**
      * return top 10 scored students
      *

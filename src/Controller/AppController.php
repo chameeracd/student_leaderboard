@@ -56,6 +56,6 @@ class AppController extends Controller
     }
 
     public function beforeRender(Event $event) {
-        $this->set('Auth', $this->Auth);
+//        $this->set('Auth', $this->Auth);
     }
 }
