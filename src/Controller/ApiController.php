@@ -2,10 +2,8 @@
 
 namespace App\Controller;
 
-use Cake\Database\Expression\QueryExpression;
 use Cake\Event\Event;
 use Cake\Http\Response;
-use Cake\ORM\Query;
 use Cake\ORM\TableRegistry;
 use Rest\Controller\RestController;
 
@@ -21,21 +19,34 @@ class ApiController extends RestController
         $this->Auth->allow();
     }
     /**
-     * return top 10 scored students
+     * return top scored students
      *
-     * @param bool $mock return mock data if true
-     * @param int $page_size items per page
-     * @param int $page_number page no
-     * @param string $include only with specified assessment ids (is set/comma separated)
-     * @param string $exclude only without specified assessment ids (is set/comma separated)
+     * @query string $mock return mock data if 'true'
+     * @query int $page_size items per page
+     * @query int $page_number page no
+     * @query string|array $include only with specified assessment ids
+     * @query string|array $exclude only without specified assessment ids
      *
      * @return Response|void
      */
-    public function leaderboard($mock = false, $page_size = 100, $page_number = 1, $include = null, $exclude = null)
+    public function leaderboard()
     {
+        $mock = ($this->request->getQuery('mock')) ? $this->request->getQuery('mock') : 'false';
+        $page_size = ($this->request->getQuery('page_size')) ? $this->request->getQuery('page_size') : 100;
+        $page_number = ($this->request->getQuery('page_number')) ? $this->request->getQuery('page_number') : 1;
+        $include = ($this->request->getQuery('include')) ? $this->request->getQuery('include') : null;
+        $exclude = ($this->request->getQuery('exclude')) ? $this->request->getQuery('exclude') : null;
+
         $data = [];
 
-        if (!$mock) {
+        if ($mock == 'true') {
+            $data = [
+                ['name' => 'name 1', 'total' => 22.2],
+                ['name' => 'name 2', 'total' => 18.1],
+                ['name' => 'name 3', 'total' => 15.1],
+                ['name' => 'name 4', 'total' => 3.9],
+            ];
+        } else {
             $results = TableRegistry::get('Results');
             $query = $results->find();
             $query->join([
@@ -57,22 +68,24 @@ class ApiController extends RestController
                 'total' => $query->func()->sum('score'),
             ])->group(['student_id']);
 
+            $include = (is_array($include)) ? implode(',', $include) : $include;
             if ($include) {
                 $query->join([
                     'a' => [
                         'table' => 'assessments',
                         'type' => 'INNER',
-                        'conditions' => 'a.id = Results.assessment_id AND a.name IN ('. $include . ')',
+                        'conditions' => 'a.id = Results.assessment_id AND a.id IN ('. $include . ')',
                     ]
                 ]);
             }
 
+            $exclude = (is_array($exclude)) ? implode(',', $exclude) : $exclude;
             if ($exclude) {
                 $query->join([
                     'a' => [
                         'table' => 'assessments',
                         'type' => 'INNER',
-                        'conditions' => 'a.id = Results.assessment_id AND a.name NOT IN (' . $exclude . ')',
+                        'conditions' => 'a.id = Results.assessment_id AND a.id NOT IN (' . $exclude . ')',
                     ]
                 ]);
             }
@@ -89,13 +102,6 @@ class ApiController extends RestController
             $query->orderDesc('total');
 
             $data = $query->toArray();
-        } else {
-            $data = [
-                ['name' => 'name 1', 'total' => 22.2],
-                ['name' => 'name 2', 'total' => 18.1],
-                ['name' => 'name 3', 'total' => 15.1],
-                ['name' => 'name 4', 'total' => 3.9],
-            ];
         }
 
         $this->set(compact('data'));

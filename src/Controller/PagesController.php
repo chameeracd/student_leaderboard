@@ -18,6 +18,7 @@ use Cake\Core\Configure;
 use Cake\Event\Event;
 use Cake\Http\Exception\ForbiddenException;
 use Cake\Http\Exception\NotFoundException;
+use Cake\ORM\TableRegistry;
 use Cake\View\Exception\MissingTemplateException;
 
 /**
@@ -73,6 +74,13 @@ class PagesController extends AppController
     }
 
     public function leaderboard() {
-
+        $sizes = array_combine(range(1,10), range(1,10));
+        $assessments = TableRegistry::get('Assessments')->find('list', [
+            'keyField' => 'id',
+            'valueField' => 'name'
+        ]);
+        $this->set(compact('pages'));
+        $this->set(compact('sizes'));
+        $this->set(compact('assessments'));
     }
 }
