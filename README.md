@@ -35,3 +35,6 @@ bin/cake server -p 8765
 Then visit `http://localhost:8765` to see the welcome page.
 
 ## Update
+`tag 0.1` open api
+
+CMS default user/pass `admin/admin`
