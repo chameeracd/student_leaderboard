@@ -8,7 +8,7 @@ use Cake\View\Helper\FormHelper;
 $this->layout = 'login';
 $this->Form->setTemplates([
     'inputContainer' => '{{content}}',
-    'label' => false
+//    'label' => false
 ]);
 ?>
 
@@ -27,8 +27,17 @@ $this->Form->setTemplates([
                 <td><?= $this->Form->control('mock', ['type' => 'checkbox', 'id' => 'mock', 'onclick' => 'getLeaderboard()']) ?></td>
                 <td><?= $this->Form->select('size', $sizes, ['default' => 1, 'id' => 'size', 'onclick' => 'getLeaderboard()']) ?></td>
                 <td><?= $this->Form->select('page', $sizes, ['default' => 1, 'id' => 'page', 'onclick' => 'getLeaderboard()']) ?></td>
-                <td><?= $this->Form->select('include', $assessments, ['empty' => [null => '--All--'], 'id' => 'include', 'multiple' => true, 'onclick' => 'getLeaderboard()']) ?></td>
-                <td><?= $this->Form->select('exclude', $assessments, ['empty' => [null => '--NONE--'], 'id' => 'exclude', 'multiple' => true, 'onclick' => 'getLeaderboard()']) ?></td>
+                <td rowspan="3"><?= $this->Form->select('include', $assessments, ['empty' => [null => '--All--'], 'id' => 'include', 'multiple' => true, 'onclick' => 'getLeaderboard()']) ?></td>
+                <td rowspan="3"><?= $this->Form->select('exclude', $assessments, ['empty' => [null => '--NONE--'], 'id' => 'exclude', 'multiple' => true, 'onclick' => 'getLeaderboard()']) ?></td>
+            </tr>
+            <tr>
+                <td><?= $this->Form->control('username', ['id' => 'username']) ?></td>
+                <td><?= $this->Form->control('password', ['type' => 'password', 'id' => 'password']) ?></td>
+                <td><?= $this->Form->button(__('Token'), ['onclick' => 'getToken()']) ?></td>
+            </tr>
+            <tr>
+                <td colspan="2"><?= $this->Form->control('token', ['id' => 'token']) ?></td>
+                <td><?= $this->Form->button(__('Submit'), ['onclick' => 'getLeaderboard()']) ?></td>
             </tr>
         </table>
 
@@ -54,6 +63,8 @@ echo $this->Html->script('jquery-3.3.1.min.js');
         getLeaderboard();
     });
 
+    var table = $('#result');
+
     function getLeaderboard() {
         var targeturl = "<?= $this->Url->build(["controller" => "Api", "action" => "leaderboard"]); ?>";
         var mock = ($('#mock').prop('checked')) ? 'true' : 'false';
@@ -61,30 +72,72 @@ echo $this->Html->script('jquery-3.3.1.min.js');
         var page = $('#page').val();
         var include = $('#include').val();
         var exclude = $('#exclude').val();
+        var token = $('#token').val();
+
+        if (token) {
+            $.ajax({
+                type: 'get',
+                url: targeturl,
+                data: {
+                    mock: mock,
+                    page_size: size,
+                    page_number: page,
+                    include: include,
+                    exclude: exclude,
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader('Content-Type', 'application/json');
+                    xhr.setRequestHeader('Accept', 'application/json');
+                    xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+                },
+                success: function (response) {
+                    if (response.result) {
+                        table.html('');
+                        var rank = (parseInt(page) - 1) * parseInt(size) + 1;
+                        var result = response.result.data;
+                        $.each(result, function (i, item) {
+                            var name = 'Anonymous';
+                            if (item.name != null) {
+                                name = item.name;
+                            }
+                            table.append('<tr><td>' + rank + '</td><td>' + name + '</td><td>' + item.total + '</td></tr>');
+                            rank++;
+                        });
+                    }
+                },
+                error: function (e) {
+                    alert("An error occurred: " + e.responseText.message);
+                    console.log(e);
+                }
+            });
+        } else {
+            table.html('');
+            table.append('<tr><td colspan="3">Token Required</td></tr>');
+        }
+    }
+
+    function getToken() {
+        var targeturl = "<?= $this->Url->build(["controller" => "Api", "action" => "users", "token"]); ?>";
+        var data = {
+            username: $('#username').val(),
+            password: $('#password').val()
+        };
         $.ajax({
-            type: 'get',
+            type: 'post',
             url: targeturl,
-            data: {
-                mock: mock,
-                page_size: size,
-                page_number: page,
-                include: include,
-                exclude: exclude,
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('Accept', 'application/json');
             },
             success: function (response) {
-                if (response.result) {
-                    var table = $('#result');
+                if (response.result.data.success) {
+                    $('#token').val(response.result.data.token);
+                } else {
                     table.html('');
-                    var rank = (parseInt(page) - 1) * parseInt(size) + 1;
-                    var result = response.result.data;
-                    $.each(result, function (i, item) {
-                        var name = 'Anonymous';
-                        if (item.name != null) {
-                            name = item.name
-                        }
-                        table.append('<tr><td>' + rank + '</td><td>' + name + '</td><td>' + item.total + '</td></tr>')
-                        rank++
-                    });
+                    table.append('<tr><td colspan="3">' + response.result.data.error + '</td></tr>');
                 }
             },
             error: function (e) {

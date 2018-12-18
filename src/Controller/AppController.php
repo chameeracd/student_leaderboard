@@ -14,6 +14,7 @@
  */
 namespace App\Controller;
 
+use Cake\Controller\Component\AuthComponent;
 use Cake\Controller\Controller;
 use Cake\Event\Event;
 
@@ -36,6 +37,7 @@ class AppController extends Controller
      * e.g. `$this->loadComponent('Security');`
      *
      * @return void
+     * @throws \Exception
      */
     public function initialize()
     {
@@ -46,7 +48,23 @@ class AppController extends Controller
         ]);
         $this->loadComponent('Flash');
 
-        $this->loadComponent('Auth');
+        $this->loadComponent('Auth', [
+            'authenticate' => [
+                AuthComponent::ALL => ['userModel' => 'Users'],
+                'ADmad/JwtAuth.Jwt' => [
+                    'parameter' => 'token',
+                    'scope' => ['Users.role' => 'api'],
+                    'fields' => [
+                        'username' => 'id'
+                    ],
+                    'queryDatasource' => true,
+                    'storage' => 'Memory',
+                ],
+                'Form',
+            ],
+            'unauthorizedRedirect' => false,
+            'checkAuthIn' => 'Controller.initialize'
+        ]);
 
         /*
          * Enable the following component for recommended CakePHP security settings.
@@ -56,6 +74,6 @@ class AppController extends Controller
     }
 
     public function beforeRender(Event $event) {
-//        $this->set('Auth', $this->Auth);
+        $this->set('Auth', $this->Auth);
     }
 }

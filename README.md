@@ -38,3 +38,12 @@ Then visit `http://localhost:8765` to see the welcome page.
 `tag 0.1` open api
 
 CMS default user/pass `admin/admin`
+
+`tag 0.2` JWT secured api
+
+CMS default user/pass `admin/admin`
+
+API default user/pass `api/api`
+
+## TODO
+API need to be separated with `Auth storage 'Memory'`

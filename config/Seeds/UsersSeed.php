@@ -27,6 +27,14 @@ class UsersSeed extends AbstractSeed
                 'created' => '2018-12-16 00:36:15',
                 'modified' => '2018-12-16 02:54:24',
             ],
+            [
+                'id' => '2',
+                'username' => 'api',
+                'password' => '$2y$10$Hu61.5D8oW2OEuEY8WM3s.iA5yGxRXKtE3MlTzGWulViRt8iNl.pS',
+                'role' => 'api',
+                'created' => '2018-12-18 04:06:35',
+                'modified' => '2018-12-18 04:06:35',
+            ],
         ];
 
         $table = $this->table('users');

@@ -105,4 +105,11 @@ Router::scope('/', function (RouteBuilder $routes) {
  * ```
  */
 
-$routes->connect('/api/leaderboard', ['controller' => 'Api', 'action' => 'leaderboard', 'isRest' => true]);
+//$routes->connect('/api/leaderboard', ['controller' => 'Api', 'action' => 'leaderboard', 'isRest' => true]);
+
+Router::prefix('api', function ($routes) {
+    $routes->extensions(['json', 'xml']);
+    $routes->resources('Users');
+    $routes->resources('Leaderboard');
+    $routes->fallbacks('InflectedRoute');
+});
